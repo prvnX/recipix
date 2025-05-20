@@ -7,15 +7,17 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { TextInput } from "react-native-gesture-handler";
 
-export default function TabTwoScreen() {
+
+export default function categories() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
       headerImage={
         <IconSymbol
           size={310}
-          color="#808080"
+          color="#bbb"
           name="chevron.left.forwardslash.chevron.right"
           style={styles.headerImage}
         />
