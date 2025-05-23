@@ -1,7 +1,9 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
+const router = useRouter();
 
 export default function InputField() {
   const [text, setText] = useState('');
@@ -10,9 +12,23 @@ export default function InputField() {
   }
   function handleSubmit() {
 if(text.trim() !== '') {
+    axios.get(`https://www.themealdb.com/api/json/v1/1/search.php?s=${text}`).
+    then((response) => {
+      const meals = response.data.meals;
+      if(meals!== null) {
+        console.log(meals);
+        router.push(`/recipiedetails/${meals.idMeal}`);
+      }
+      else {
+        Alert.alert('No results found', 'Please try a different search term.');
+      }
 
-    Alert.alert('Text Submitted', `You typed: ${text}`);
-    // Handle form submission
+    })
+    .catch((error) => {
+      console.error(error);
+      Alert.alert('Error', 'Failed to fetch meals');
+    });
+    setText('');
   }
   }
   return (
