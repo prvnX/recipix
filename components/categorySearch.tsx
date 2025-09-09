@@ -13,47 +13,29 @@ type Meal = {
 };
 
 interface Props {
-  setMealData: React.Dispatch<React.SetStateAction<Meal[]>>;
+  changeCategory: void | any;
+  
 }
 
-export default function InputField({ setMealData }: Props) {
+export default function categorySearch({ changeCategory }: Props) {
   const [text, setText] = useState('');
+  
   function handleTextChange(newText: string) {
     setText(newText);
   }
   function handleSubmit() {
-if(text.trim() !== '') {
-    axios.get(`https://www.themealdb.com/api/json/v1/1/search.php?s=${text}`).
-    then((response) => {
-      const meals = response.data.meals;
-      if(meals!== null) {
-        const mealData: Meal[] = meals.map((meal: any) => ({
-          id: meal.idMeal,
-          name: meal.strMeal,
-          area: meal.strArea,
-          category: meal.strCategory,
-          image: meal.strMealThumb,
-        }));
-        setMealData(mealData);
-      }
-      else {
-        Alert.alert('No results found', 'Please try a different search term.');
-      }
+    changeCategory(text);
 
-    })
-    .catch((error) => {
-      console.error(error);
-      Alert.alert('Error', 'Failed to fetch meals');
-    });
-    setText('');
-  }
+
+
+  
   }
   return (
     <View style={styles.container}>
         <Ionicons name="search-outline" size={20} color={'#ccc'}/>
       <TextInput
         style={styles.input}
-        placeholder="Search for Recipies..."
+        placeholder="Search for Categories..."
         placeholderTextColor={"#afaeae"}
         value={text}
         onChangeText={handleTextChange} 
