@@ -16,13 +16,57 @@ type Meal = {
   area: string;
   category: string;
   image: string;
+
 };
 
 
 export default function HomeScreen() {
-  const [searchText, setSearchText] = useState('');
   const [mealData, setMealData] =useState<Meal[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+    if (isBottom) {
+      loadMoreMeals();
+    }
+  };
+
+  const loadMoreMeals = async () => {
+    if (isLoadingMore) return; // Prevent multiple simultaneous loads
+    setIsLoadingMore(true);
+        try {
+          const requests = Array.from({ length: 10 }, () =>
+            axios.get('https://www.themealdb.com/api/json/v1/1/random.php')
+          );
+          const responses = await Promise.all(requests);
+          const meals = responses.map((response) => {
+
+            const meal = response.data.meals[0];
+            if(mealData.find(m => m.id === meal.idMeal)){
+              return null; // Skip duplicates
+            }
+
+            return {
+              id: meal.idMeal,
+              name: meal.strMeal,
+              area: meal.strArea,
+              category: meal.strCategory,
+              image: meal.strMealThumb,
+            };
+          }).filter((meal): meal is Meal => meal !== null);
+          const uniqueMeals = Array.from(new Map(meals.map(m => [m.id, m])).values());
+          setMealData([...mealData, ...uniqueMeals]);
+        } catch (error) {
+          console.error(error);
+          Alert.alert('Failed to fetch meals');
+        } finally {
+          setIsLoadingMore(false);
+        }
+  };
+
     useFocusEffect(
     useCallback(() => {
       const fetchMeals = async () => {
@@ -59,12 +103,15 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
     <Header />
-    <ScrollView>
-    <InputField/>
+    <ScrollView
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+    >
+    <InputField setMealData={setMealData}/>
  
 
     <View style={{ flex: 1 }}>
-      <Text style={{ fontSize: 24, fontWeight: '700', marginTop: 16, marginLeft: 20,color: '#000000', fontFamily: '' }}>
+      <Text style={{ fontSize: 24, fontWeight: '700', marginLeft: 20,color: '#000000', fontFamily: '' }}>
         Handpicked recipes just for you!
       </Text>
       <View style={styles.cardContainer}>

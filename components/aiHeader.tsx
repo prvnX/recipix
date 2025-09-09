@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react"; 
 import { StyleSheet, View, Image, Text ,TouchableOpacity, Alert } from "react-native";
 
-export default function Header() {
+export default function AIHeader() {
     return (
         <View style={styles.header}>
             <View >
             <Image
-                source={require('@/assets/images/Recipix.png')}
+                source={require('@/assets/images/ai.png')}
                 resizeMode="contain"
                 style={styles.logo}
             />
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         fontFamily: 'dancingScript',
     },
     logo: {
-        width: 130,
+        width: 180,
         height: 110,
         borderRadius: 10,
         

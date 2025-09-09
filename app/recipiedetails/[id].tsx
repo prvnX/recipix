@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import IngredientImg from '@/components/ingrediantimg';
 import YouTubePlayer from '@/components/Video';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const router = useRouter();
 
@@ -16,6 +17,27 @@ export default function RecipeDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [titleSize, setTitleSize] = useState(40);
   const [activeTab, setActiveTab] = useState('ingredients');
+
+  const saveData = async () => {
+  try {
+    const saveData = recipe;
+    const userID = '123'; // Replace with a userID
+    const itemKey= saveData.idMeal;
+    const key= `${userID}_${itemKey}`;
+    await AsyncStorage.setItem(key, JSON.stringify(saveData));
+    setFavourite(true);
+  } catch (e) {
+    console.error('Failed to save data:', e);
+  }
+};
+async function checkFavourite(id: string) {
+  const userID = '123'; // Replace with a userID
+  const data = await AsyncStorage.getItem(`${userID}_${id}`);
+  if (data !== null) {
+    setFavourite(true);
+  }
+
+}
 
   useEffect(() => {
     setIsLoading(true);
@@ -30,6 +52,8 @@ export default function RecipeDetails() {
         else if (length > 20) setTitleSize(30);
         else setTitleSize(40);
         setIsLoading(false);
+        checkFavourite(data.meals[0].idMeal);
+
       })
       .catch(console.error);
   }, [id]);
@@ -60,7 +84,7 @@ export default function RecipeDetails() {
                   <TouchableOpacity onPress={() => router.back()}>
                     <Text style={styles.icon}><Ionicons name="arrow-back" size={20} color="black" /></Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => { setFavourite(!favourite) }}>
+                  <TouchableOpacity onPress={() => { !favourite ? saveData() : Alert.alert('Already Added to Favourites') }}>
                     {
                       favourite ? (
                         <Text style={styles.icon}><Ionicons name="heart" size={20} color="#FF7043" /></Text>

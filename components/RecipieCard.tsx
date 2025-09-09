@@ -33,7 +33,10 @@ export default function RecipieCard({id,name, category="", Area="", image=''}:pr
                 <Text style={{fontSize: 20, fontWeight: 'bold', margin : 10}}>{name}</Text>
                 <View style={styles.categoryContainer}>
                 <Text style={styles.category}>{category}</Text>
+                {Area &&
                 <Text style={styles.category}>{Area}</Text>
+                }
+                
 
                 </View>
             </View>
