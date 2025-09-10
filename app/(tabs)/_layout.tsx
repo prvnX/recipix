@@ -57,20 +57,22 @@ export default function TabLayout() {
           justifyContent: 'center',
           backgroundColor: 'white',
           borderRadius: 35,
-          height: 50,
-          width: 50,
+          height: 55,
+          width: 55,
           shadowRadius: 4,
           padding: 5,
           shadowColor:'black',
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.3,
-          borderWidth:0.5,
-          borderColor:'#ff6200'
+          borderWidth:1,
+          borderColor:'#ff6200',
+          elevation:10
+
 
         }}>
         <Ionicons
-          size={30}
-          name="flame"
+          size={25}
+          name="sparkles"
           color={focused ? '#ff6200' : '#ff6200'}
         />
       </View>
@@ -84,7 +86,7 @@ export default function TabLayout() {
         name="search"
         options={{
           title: '',
-          tabBarIcon: ({ color }) => <Ionicons size={28} name="search" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="nutrition" color={color} />,
         }}
       />
 

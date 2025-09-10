@@ -22,6 +22,7 @@ type Meal = {
 export default function Favourites() {
   const [mealData, setMealData] =useState<Meal[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
+  const [titleText, setTitleText] = useState('Handpicked recipes just for you!');
     useFocusEffect(
     useCallback(() => {
       const fetchMeals = async () => {
@@ -63,7 +64,7 @@ export default function Favourites() {
       <Text style={{ fontSize: 24, fontWeight: '700', marginTop: 16, marginLeft: 20,color: '#000000', fontFamily: '' }}>
         Cook your favourites today !
       </Text>
-      <InputField setMealData={setMealData}/>
+      <InputField setMealData={setMealData} setTitleText={setTitleText}/>
       <View style={styles.cardContainer}>
 
       {
