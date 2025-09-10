@@ -14,9 +14,10 @@ type Meal = {
 
 interface Props {
   setMealData: React.Dispatch<React.SetStateAction<Meal[]>>;
+  setTitleText: void | any;
 }
 
-export default function InputField({ setMealData }: Props) {
+export default function InputField({ setMealData,setTitleText }: Props) {
   const [text, setText] = useState('');
   function handleTextChange(newText: string) {
     setText(newText);
@@ -35,10 +36,28 @@ if(text.trim() !== '') {
           image: meal.strMealThumb,
         }));
         setMealData(mealData);
+        setTitleText(`Search results for "${text}"`);
       }
       else {
-        Alert.alert('No results found', 'Please try a different search term.');
-      }
+        Alert.alert(
+          'No results found',
+          'Please try a different search term.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'Try AI Search',
+              onPress: () => {
+                // Optional: clear text or focus input again
+                // Optional: clear text or focus input again
+                router.push('/random');
+              },
+            },
+          ],
+          { cancelable: true }
+        );      }
 
     })
     .catch((error) => {

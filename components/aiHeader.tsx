@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5, // for Android shadow
-        marginBottom: 10,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',

@@ -6,7 +6,7 @@ import { TextInput } from "react-native-gesture-handler";
 import RecipieCard from '@/components/RecipieCard';
 import axios from 'axios';
 import { useState,useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 
@@ -24,12 +24,14 @@ export default function HomeScreen() {
   const [mealData, setMealData] =useState<Meal[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [titleText, setTitleText] = useState('Handpicked recipes just for you!');
 
 
   const handleScroll = (event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const isBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
     if (isBottom) {
+      if(titleText !== 'Handpicked recipes just for you!') return;
       loadMoreMeals();
     }
   };
@@ -66,10 +68,7 @@ export default function HomeScreen() {
           setIsLoadingMore(false);
         }
   };
-
-    useFocusEffect(
-    useCallback(() => {
-      const fetchMeals = async () => {
+  const fetchMeals = async () => {
         setIsLoading(true);
         try {
           const requests = Array.from({ length: 10 }, () =>
@@ -89,6 +88,7 @@ export default function HomeScreen() {
           });
           const uniqueMeals = Array.from(new Map(meals.map(m => [m.id, m])).values());
           setMealData(uniqueMeals);
+          setTitleText('Handpicked recipes just for you!');
         } catch (error) {
           console.error(error);
           Alert.alert('Failed to fetch meals');
@@ -96,6 +96,10 @@ export default function HomeScreen() {
           setIsLoading(false);
         }
       };
+
+    useFocusEffect(
+    useCallback(() => {
+      
       fetchMeals();
     }, [])
   );
@@ -107,13 +111,22 @@ export default function HomeScreen() {
       onScroll={handleScroll}
       scrollEventThrottle={16}
     >
-    <InputField setMealData={setMealData}/>
+    <InputField setMealData={setMealData} setTitleText={setTitleText}/>
  
 
     <View style={{ flex: 1 }}>
       <Text style={{ fontSize: 24, fontWeight: '700', marginLeft: 20,color: '#000000', fontFamily: '' }}>
-        Handpicked recipes just for you!
+        {titleText}
       </Text>
+      {
+        titleText !== 'Handpicked recipes just for you!' && (
+          <TouchableOpacity onPress={() => {fetchMeals(); }}>
+            <Text style={{ fontSize: 16, fontWeight: '500', marginLeft: 20, marginBottom: 10, color: '#a5a5a5',textDecorationLine: 'underline' }}>
+              Clear
+            </Text>
+          </TouchableOpacity>
+        )
+      }
       <View style={styles.cardContainer}>
 
       {
