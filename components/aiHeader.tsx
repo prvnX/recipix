@@ -1,9 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react"; 
 import { StyleSheet, View, Image, Text ,TouchableOpacity, Alert } from "react-native";
-
+import { useRouter } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
+import { doc, getDoc} from "firebase/firestore";
+import { db , auth} from "../firebase-config";
 export default function AIHeader() {
+    const router = useRouter();
+    const {user}=useAuth();
+    const [userImg,setUserImg]=React.useState("")
+    React.useEffect(() => {
+        getImg();
+        console.log(userImg)
+    },[user]);
+
+    const getImg= async()=>{
+        
+         const docRef = doc(db, "users", user?.uid as string);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setUserImg(docSnap.data().photoUrl);
+
+        }
+
+    }
     return (
+        
         <View style={styles.header}>
             <View >
             <Image
@@ -13,14 +35,19 @@ export default function AIHeader() {
             />
             </View>
             <View >
-                <TouchableOpacity style={styles.icon} onPress={() => Alert.alert('Logo clicked')}>
+                <TouchableOpacity style={styles.icon} onPress={() => router.push('/profile')}>
+                    {
+                        userImg!="" ? <Image source={{ uri: userImg }} style={{ width: 45, height: 45, borderRadius: 22.5 }} /> 
+                        : 
                     <Ionicons name="person-circle" size={45} color="#ccc" />
+                    }
                 </TouchableOpacity>
 
             </View>
 
         </View>
-    );
+    )
+    
 }
 
 const styles = StyleSheet.create({

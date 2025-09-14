@@ -34,8 +34,8 @@ export default function SearchScreen({ }) {
   const [activeTab, setActiveTab] = useState('ingredients');
 
   const [servedPeople, setServedPeople] = useState(0);
-          const genAI = new GoogleGenerativeAI('API_KEY');
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+          const genAI = new GoogleGenerativeAI('YOUR_API_KEY_HERE');
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       
 
 
@@ -62,7 +62,7 @@ export default function SearchScreen({ }) {
                           [
                             {
                               "title": "<meal name>",
-                              "description": "<small description of the meal>",
+                              "description": "<small description of the meal (max 20 words)>",
                               "serves": ,
                               "ingredients": [
                                 "<ingredient 1 with amount>",
@@ -167,7 +167,7 @@ export default function SearchScreen({ }) {
   return (
     <LinearGradient colors={["#fff", "#fff"]} style={styles.container}>
 
-      <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
 
 
       <Header/>
@@ -439,7 +439,7 @@ export default function SearchScreen({ }) {
                 </ScrollView>
               </View>
             )}
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   );
 }

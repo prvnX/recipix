@@ -1,14 +1,13 @@
-import { Platform, StyleSheet,View,ScrollView, Alert,ActivityIndicator } from 'react-native';
-import { Text } from 'react-native-gesture-handler';
+import { Platform, StyleSheet, View, ScrollView, Alert, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import Header from '@/components/header';
 import InputField from '@/components/InputField';
-import { TextInput } from "react-native-gesture-handler";
 import RecipieCard from '@/components/RecipieCard';
-import axios from 'axios';
-import { useState,useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useCallback, use } from 'react';
 import { useFocusEffect } from 'expo-router';
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { useAuth } from '@/hooks/useAuth';
+import { Ionicons } from '@expo/vector-icons';
 
 type Meal = {
   id: string;
@@ -18,33 +17,30 @@ type Meal = {
   image: string;
 };
 
-
 export default function Favourites() {
-  const [mealData, setMealData] =useState<Meal[]>([]); 
+  const [mealData, setMealData] = useState<Meal[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
-  const [titleText, setTitleText] = useState('Handpicked recipes just for you!');
-    useFocusEffect(
+  const {user}=useAuth();
+
+  useFocusEffect(
     useCallback(() => {
       const fetchMeals = async () => {
         setIsLoading(true);
         try {
-          const requests = Array.from({ length: 10 }, () =>
-            axios.get('https://www.themealdb.com/api/json/v1/1/random.php')
-          );
-          const responses = await Promise.all(requests);
+          const requests = await AsyncStorage.getItem(`favourites_${user?.email}`);
+          const responses = requests ? JSON.parse(requests) : [];
+          // const meals = responses.map((response) => {
+            // Process each element if needed
+          const meals: Meal[] = responses.map((meal: any) => ({
+            id: meal.idMeal || meal.id,
+            name: meal.strMeal || meal.name,
+            area: meal.strArea || meal.area,
+            category: meal.strCategory || meal.category,
+            image: meal.strMealThumb || meal.image,
+          }));
 
-          const meals: Meal[] = responses.map((response) => {
-            const meal = response.data.meals[0];
-            return {
-              id: meal.idMeal,
-              name: meal.strMeal,
-              area: meal.strArea,
-              category: meal.strCategory,
-              image: meal.strMealThumb,
-            };
-          });
           const uniqueMeals = Array.from(new Map(meals.map(m => [m.id, m])).values());
-          setMealData(uniqueMeals);
+          setMealData(uniqueMeals.reverse());
         } catch (error) {
           console.error(error);
           Alert.alert('Failed to fetch meals');
@@ -53,87 +49,66 @@ export default function Favourites() {
         }
       };
       fetchMeals();
-    }, [])
+    }, [user])
   );
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-    <Header />
-    <ScrollView> 
-    <View style={{ flex: 1 }}>
-      <Text style={{ fontSize: 24, fontWeight: '700', marginTop: 16, marginLeft: 20,color: '#000000', fontFamily: '' }}>
-        Cook your favourites today !
-      </Text>
-      <InputField setMealData={setMealData} setTitleText={setTitleText}/>
-      <View style={styles.cardContainer}>
+      <Header />
+      <ScrollView> 
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>
+            Cook your favourites today!
+          </Text>
+          <InputField setMealData={setMealData} setTitleText={() => {}}/>
+          <View style={styles.cardContainer}>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#FF7043" />
+            ) : (
+              mealData.map((meal) => (
+                <RecipieCard
+                  key={meal.id}
+                  id={meal.id}
+                  name={meal.name}
+                  Area={meal.area}
+                  category={meal.category}
+                  image={meal.image}
+                />
+              ))
+            )}
 
-      {
-        isLoading ? (
-          <ActivityIndicator size="large" color="#FF7043" />
-        ) : (
-          mealData.map((meal) => (
-            <RecipieCard
-              key={meal.id}
-              id={meal.id}
-              name={meal.name}
-              Area={meal.area}
-              category={meal.category}
-              image={meal.image}
-            />
-          ))
-        
+            {
+              mealData.length==0 && 
+                      <View style={{justifyContent:'center',marginVertical:50,flex:1,}}>
 
-
-        )
-        
-      
-          // <Text key={mealData[0].id} style={{fontSize: 20, fontWeight: 'bold', margin : 10}}>{mealData[0].name}</Text>
+          <Ionicons name="heart-outline" size={100} color={'#626262'} style={{alignSelf:'center'}} />
+          <Text style={{ textAlign: "center", marginTop: 50, fontSize: 20, color: "#626262" }}>
+            You have no favourites recipes yet.
+          </Text>
           
-          // <RecipieCard
-          //   key={meal.id}r
-          //   name={meal.name}
-          //   Area={meal.area}
-          //   category={meal.category}
-          //   image={meal.image}
-          // />
-        
-      }
-
-
-        
-
-
-      </View>
-         
+          
+          </View>
+            }
+          </View>
+        </View>
+      </ScrollView>
     </View>
-    </ScrollView>
-    </View>
-  )
-  
+  );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginTop: 16,
+    marginLeft: 20,
+    color: '#000000',
   },
   cardContainer: {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
     marginBottom: 20,
-    padding: 20
+    padding: 20,
   },
 });

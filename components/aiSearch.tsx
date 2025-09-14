@@ -28,8 +28,8 @@ export default function AISearch({ setRecipie, setLoading, setRecipeTitle, setRe
     if (!text.trim()) return;
     setLoading(true);
     try {
-      const genAI = new GoogleGenerativeAI('API_KEY');
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const prompt = `Find the recipe for ${text}. 
                         The recipe should serve for 4 people. 
                         Please provide a list of ingredients with exact amounts and clear, step-by-step cooking instructions. 
@@ -39,7 +39,7 @@ export default function AISearch({ setRecipie, setLoading, setRecipeTitle, setRe
                         [
                           {
                             "title": "<meal name>",
-                            "description": "<small description of the meal>",
+                            "description": "<small description of the meal (max 20 words)>",
                             "serves": ,
                             "ingredients": [
                               "<ingredient 1 with amount>",

@@ -11,14 +11,18 @@ import * as FileSystem from 'expo-file-system';
 import { Asset } from 'expo-asset';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AISearch from "@/components/aiSearch";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "expo-router";
 
 
 
 export default function Random() {
-  const API_KEY = 'API_KEY';
+  const API_KEY = 'YOUR_API_KEY';
+  const { user } = useAuth();
+  const router = useRouter();
 
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Corrected and updated model name
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Corrected and updated model name
 
 
   const [camera, setCamera] = useState(false);
@@ -49,7 +53,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Correc
 
     try {
       // 1. Read the image file from the URI and encode it to base64 (should add pic to here- for testing we add asset)
-      const base64ImageData = await FileSystem.readAsStringAsync(asset.localUri!, {
+      const base64ImageData = await FileSystem.readAsStringAsync(pic, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
@@ -64,7 +68,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Correc
                         [
                           {
                             "title": "<meal name>",
-                            "description": "<small description of the meal>",
+                            "description": "<small description of the meal (max 20 words)>",
                             "serves": ${people},
                             "ingredients": [
                               "<ingredient 1 with amount>",
@@ -155,19 +159,19 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Correc
       ingredients: recipeIngredients,
       instructions: recipeInstructions,
       additionalNotes: additionalNotes,
-      image: pic, // save the photo too
+      image: null, // save the photo too
       date: new Date().toISOString(), // useful for sorting
     };
 
     // Get existing recipes
-    const stored = await AsyncStorage.getItem('recipes');
+    const stored = await AsyncStorage.getItem(`AIrecipes_${user?.email}`);
     const recipes = stored ? JSON.parse(stored) : [];
 
     // Add new recipe
     recipes.push(newRecipe);
 
     // Save back
-    await AsyncStorage.setItem('recipes', JSON.stringify(recipes));
+    await AsyncStorage.setItem(`AIrecipes_${user?.email}`, JSON.stringify(recipes));
 
     Alert.alert("Saved", "Recipe added to your saved AI recipes!");
   } catch (error) {
@@ -184,7 +188,11 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Correc
   }
 
   function handleViewSavedRecipes() {
-    alert("View Saved Recipes clicked!");
+    // Navigate to saved recipes screen
+    setRecipe(false);
+    setPic('');
+    setCamera(false);
+    router.push('/savedAIRecipes');
   }
 
   function showLoadingText() {
@@ -252,7 +260,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Correc
                               <Ionicons name="arrow-back" size={20} color="black" style={styles.icon} />
                             </TouchableOpacity>
                             <View style={{flexDirection:'row',gap:10}}>
-                            <TouchableOpacity onPress={() => { Alert.alert('Already Added to Favourites') }}>
+                            <TouchableOpacity onPress={() => { saveRecipe() }}>
                               <Ionicons name="save-outline" size={20} color="#000000ff" style={styles.icon} />
                             </TouchableOpacity> 
                             <TouchableOpacity onPress={() => {shareRecipie() }}>

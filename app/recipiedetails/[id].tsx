@@ -7,10 +7,12 @@ import { useRouter } from 'expo-router';
 import IngredientImg from '@/components/ingrediantimg';
 import YouTubePlayer from '@/components/Video';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/hooks/useAuth';
 
 const router = useRouter();
 
 export default function RecipeDetails() {
+  const { user } = useAuth();
   const { id } = useLocalSearchParams();
   const [recipe, setRecipe] = useState<any>(null);
   const [favourite, setFavourite] = useState(false);
@@ -21,19 +23,44 @@ export default function RecipeDetails() {
   const saveData = async () => {
   try {
     const saveData = recipe;
-    const userID = '123'; // Replace with a userID
-    const itemKey= saveData.idMeal;
-    const key= `${userID}_${itemKey}`;
-    await AsyncStorage.setItem(key, JSON.stringify(saveData));
-    setFavourite(true);
+    const userEmail = user?.email; // Get the userID from the user object
+    const key= `favourites_${userEmail}`;
+    // Get existing favourites
+    const existing = await AsyncStorage.getItem(key);
+    let favouritesArray = existing ? JSON.parse(existing) : [];
+
+    // Check if recipe already exists in favourites
+    const exists = favouritesArray.some((item: any) => item.idMeal == saveData.idMeal);
+    if (!exists) {
+      favouritesArray.push(saveData); // Add new recipe
+      await AsyncStorage.setItem(key, JSON.stringify(favouritesArray));
+      setFavourite(true);
+      Alert.alert('Added to Favourites');
+    } else {
+      
+      const newArray=favouritesArray.filter((item: any) => item.idMeal != saveData.idMeal);
+      try{
+          await AsyncStorage.setItem(key, JSON.stringify(newArray));
+          setFavourite(false);
+          Alert.alert('Removed from Favourites');
+      }
+      catch(e){
+        console.error(e);
+      }
+    }
   } catch (e) {
     console.error('Failed to save data:', e);
   }
 };
+
 async function checkFavourite(id: string) {
-  const userID = '123'; // Replace with a userID
-  const data = await AsyncStorage.getItem(`${userID}_${id}`);
-  if (data !== null) {
+  const userEmail = user?.email; // Get the userID from the user object
+  const key= `favourites_${userEmail}`;
+  const existing = await AsyncStorage.getItem(key);
+  let favouritesArray = existing ? JSON.parse(existing) : [];
+  const exists = favouritesArray.some((item: any) => item.idMeal == id);
+
+  if (exists) {
     setFavourite(true);
   }
 
@@ -56,7 +83,7 @@ async function checkFavourite(id: string) {
 
       })
       .catch(console.error);
-  }, [id]);
+  }, [id,user]);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
@@ -84,7 +111,7 @@ async function checkFavourite(id: string) {
                   <TouchableOpacity onPress={() => router.back()}>
                     <Text style={styles.icon}><Ionicons name="arrow-back" size={20} color="black" /></Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => { !favourite ? saveData() : Alert.alert('Already Added to Favourites') }}>
+                  <TouchableOpacity onPress={saveData}>
                     {
                       favourite ? (
                         <Text style={styles.icon}><Ionicons name="heart" size={20} color="#FF7043" /></Text>
