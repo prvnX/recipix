@@ -23,8 +23,8 @@ export default function Profile() {
     type: 'image/jpeg', // or get from ImagePicker result
     name: 'upload.jpg',
   } as any);
-  data.append('upload_preset', 'YOUR_UPLOAD_PRESET'); // unsigned preset
-  data.append('cloud_name', 'YOUR_CLOUD_NAME');
+  data.append('upload_preset', 'my_present'); // unsigned preset
+  data.append('cloud_name', 'dbleqzcp4');
 
   try {
     const res = await axios.post(

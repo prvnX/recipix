@@ -34,7 +34,7 @@ export default function SearchScreen({ }) {
   const [activeTab, setActiveTab] = useState('ingredients');
 
   const [servedPeople, setServedPeople] = useState(0);
-          const genAI = new GoogleGenerativeAI('YOUR_API_KEY_HERE');
+          const genAI = new GoogleGenerativeAI('AIzaSyCglI1HVHUssiaEL_B6bFFqQSRhYz1wr-8');
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       
 

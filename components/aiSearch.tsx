@@ -28,7 +28,7 @@ export default function AISearch({ setRecipie, setLoading, setRecipeTitle, setRe
     if (!text.trim()) return;
     setLoading(true);
     try {
-      const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+      const genAI = new GoogleGenerativeAI('AIzaSyCglI1HVHUssiaEL_B6bFFqQSRhYz1wr-8');
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const prompt = `Find the recipe for ${text}. 
                         The recipe should serve for 4 people. 
