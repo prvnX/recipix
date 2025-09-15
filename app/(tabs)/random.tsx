@@ -17,7 +17,7 @@ import { useRouter } from "expo-router";
 
 
 export default function Random() {
-  const API_KEY = 'AIzaSyCglI1HVHUssiaEL_B6bFFqQSRhYz1wr-8';
+  const API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
   const { user } = useAuth();
   const router = useRouter();
 
